@@ -1,0 +1,23 @@
+<!--<launch>
+  <arg name="model" default="$(find p3dx_description_gazebo)/urdf/pioneer3dx.urdf"/>
+  <arg name="gui" default="False" />
+  <param name="robot_description" textfile="$(arg model)" />
+  <param name="use_gui" value="$(arg gui)"/>
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" ></node>
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find p3dx_description_gazebo)/launch/config.rviz" />
+</launch> /-->
+
+<launch>
+  <arg name="gui" default="false" />
+  <arg name="rviz_node_args" default="-d (find p3dx_description_gazebo)/launch/urdf.rviz" />
+  <param name="use_gui" value="$(arg gui)"/>
+  
+  <!--RVIZ settings-->
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find p3dx_description_gazebo)/urdf/pioneer3dx.xacro'" />
+  <node name="rviz" pkg="rviz" type="rviz" args="$(arg rviz_node_args)" />
+
+  <!--state publishers are moved to p3dx_2dnav.launch-->
+  <!--node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" /-->
+</launch>

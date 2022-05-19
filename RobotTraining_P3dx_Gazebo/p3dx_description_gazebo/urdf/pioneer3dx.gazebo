@@ -1,0 +1,272 @@
+<?xml version="1.0"?>
+<!-- 
+This is the gazebo urdf description of a Pioneer 3DX.
+Copyright (C) 2013 Rafael Berkvens rafael.berkvens@uantwerpen.be
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<robot>
+	<!-- properties (constants) -->
+	<property name="ns" value="p3dx" />
+	<!-- ros_control plugin -->
+	<gazebo>
+		<plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+			<!--<robotNamespace>/${ns}</robotNamespace>-->
+		</plugin>
+	</gazebo>
+	<!-- base_link -->
+	<gazebo reference="base_link">
+		<material>Gazebo/Red</material>
+	</gazebo>
+	<!-- top_plate -->
+	<gazebo reference="top_plate">
+		<material>Gazebo/Black</material>
+	</gazebo>
+	<!-- swivel -->
+	<gazebo reference="swivel">
+		<material>Gazebo/Grey</material>
+	</gazebo>
+	<!-- center_hubcap -->
+	<gazebo reference="center_hubcap">
+		<material>Gazebo/Grey</material>
+	</gazebo>
+	<!-- center_wheel -->
+	<gazebo reference="center_wheel">
+		<material>Gazebo/Black</material>
+		<mu1>0.0</mu1>
+		<mu2>0.0</mu2>
+		<kp>1000000.0</kp>
+		<kd>1.0</kd>
+	</gazebo>
+	<!-- front_sonar -->
+	<gazebo reference="front_sonar">
+		<material value="Gazebo/Yellow" />
+	</gazebo>
+	<!-- differential drive -->
+	<gazebo>
+		<plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+			<alwaysOn>true</alwaysOn>
+			<updateRate>100</updateRate>
+			<leftJoint>base_right_wheel_joint</leftJoint>
+			<rightJoint>base_left_wheel_joint</rightJoint>
+			<wheelSeparation>0.314</wheelSeparation>
+			<wheelDiameter>0.179</wheelDiameter>
+			<torque>5</torque>
+			<commandTopic>cmd_vel</commandTopic>
+			<odometryTopic>odom</odometryTopic>
+			<odometryFrame>odom</odometryFrame>
+			<robotBaseFrame>base_link</robotBaseFrame>
+			<publishWheelTF>true</publishWheelTF>
+			<publishWheelJointState>true</publishWheelJointState>
+			<wheelAcceleration>0</wheelAcceleration>
+			<wheelTorque>5</wheelTorque>
+			<rosDebugLevel>na</rosDebugLevel>
+			<publishTf>1</publishTf>
+			<legacyMode>false</legacyMode>
+		</plugin>
+	</gazebo>
+	<!-- ground truth -->
+	<gazebo>
+		<plugin name="p3d_base_controller" filename="libgazebo_ros_p3d.so">
+			<alwaysOn>true</alwaysOn>
+			<updateRate>30.0</updateRate>
+			<bodyName>base_link</bodyName>
+			<topicName>base_pose_ground_truth</topicName>
+			<gaussianNoise>0.01</gaussianNoise>
+			<frameName>map</frameName>
+			<!-- initialize odometry for fake localization -->
+			<xyzOffsets>0 0 0</xyzOffsets>
+			<rpyOffsets>0 0 0</rpyOffsets>
+		</plugin>
+	</gazebo>
+	<!-- lms100 -->
+	<gazebo reference="lms100">
+		<sensor type="ray" name="head_hokuyo_sensor">
+			<pose>0 0 0 0 0 0</pose>
+			<visualize>true</visualize>
+			<update_rate>40</update_rate>
+			<ray>
+				<scan>
+					<horizontal>
+						<samples>720</samples>
+						<resolution>1</resolution>
+						<min_angle>-1.570796</min_angle>
+						<max_angle>1.570796</max_angle>
+					</horizontal>
+				</scan>
+				<range>
+					<min>0.1</min>
+					<max>4.0</max>
+					<resolution>0.01</resolution>
+				</range>
+				<noise>
+					<type>gaussian</type>
+					<!-- Noise parameters based on published spec for Hokuyo laser achieving 
+						"+-30mm" accuracy at range < 10m. A mean of 0.0m and stddev of 0.01m will 
+						put 99.7% of samples within 0.03m of the true reading. -->
+					<mean>0.0</mean>
+					<stddev>0.01</stddev>
+				</noise>
+			</ray>
+			<plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_laser.so">
+				<topicName>laser/scan</topicName>
+				<frameName>lms100</frameName>
+			</plugin>
+		</sensor>
+	</gazebo>
+	<gazebo reference="base_IMU">        
+		<gravity>true</gravity>
+		<sensor name="imu_sensor" type="imu">
+			<always_on>true</always_on>
+			<update_rate>100</update_rate>
+			<visualize>true</visualize>
+			<topic>__default_topic__</topic>
+			<plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+				<topicName>imu_1</topicName>
+				<updateRateHZ>10.0</updateRateHZ>
+				<gaussianNoise>0.0</gaussianNoise>
+				<xyzOffset>0 0 0</xyzOffset>
+				<rpyOffset>0 0 0</rpyOffset>
+				<frameName>base_IMU</frameName>
+				<initialOrientationAsReference>false</initialOrientationAsReference>
+			</plugin>
+			<pose>0 0 0 0 0 0</pose>
+		</sensor>
+	</gazebo>
+	<gazebo reference="base_Cam">        
+		<sensor type="depth" name="camera">
+		<update_rate>30.0</update_rate>
+		<camera name="head">
+		  <horizontal_fov>1.5708</horizontal_fov>
+		  <image>
+		    <width>320</width>
+		    <height>240</height>
+		    <format>R8G8B8</format>
+		  </image>
+		  <clip>
+		    <near>0.02</near>
+		    <far>300</far>
+		</clip>
+		</camera>
+		<plugin name="camera_controller" filename="libgazebo_ros_openni_kinect.so">
+			<alwaysOn>true</alwaysOn>
+			<updateRate>0.0</updateRate>
+			<cameraName>p3dx/camera</cameraName>
+			<imageTopicName>image_raw</imageTopicName>
+			<cameraInfoTopicName>camera_info</cameraInfoTopicName>
+			<depthImageTopicName>camera/depth/image_raw</depthImageTopicName>
+			<depthImageCameraInfoTopicName>depth/camera_info</depthImageCameraInfoTopicName>
+			<frameName>base_Cam</frameName>
+			<pointCloudCutoff>0.4</pointCloudCutoff>
+				<hackBaseline>0.07</hackBaseline>
+				<distortionK1>0.0</distortionK1>
+				<distortionK2>0.0</distortionK2>
+				<distortionK3>0.0</distortionK3>
+				<distortionT1>0.0</distortionT1>
+				<distortionT2>0.0</distortionT2>
+			<CxPrime>0.0</CxPrime>
+			<Cx>0.0</Cx>
+            <Cy>0.0</Cy>
+			<focalLength>0.0</focalLength>
+		</plugin>
+		<pose frame=''>0.05 0 0.35 0 0.25 0</pose>
+	      </sensor>
+	</gazebo>
+	<gazebo reference="base_sonar_1">        
+		<sensor type="ray" name="sonar1">
+			<always_on>true</always_on>
+			<update_rate>40</update_rate>
+			<pose>0 0 0 0 0 0</pose>
+			<visualize>true</visualize>
+			<ray>
+				<scan>
+					<horizontal>
+					<samples>5</samples>
+					<resolution>1.0</resolution>
+					<min_angle>-0.25</min_angle>
+					<max_angle>0.25</max_angle>
+				</horizontal>
+				</scan>
+				<range>
+					<min>0.02</min>
+					<max>5</max>            
+					<resolution>0.01</resolution>
+				</range>
+			</ray>
+			<plugin name="libgazebo_ros_range" filename="libgazebo_ros_range.so">
+				<gaussianNoise>0.005</gaussianNoise>
+				<topicName>sonar/sonar_1</topicName>
+				<frameName>base_sonar_1</frameName>
+			</plugin>
+		</sensor>  
+   </gazebo>
+
+   <gazebo reference="base_sonar_2">        
+		<sensor type="ray" name="sonar2">
+			<always_on>true</always_on>
+			<update_rate>40</update_rate>
+			<pose>0 0 0 0 0 0</pose>
+			<visualize>true</visualize>
+			<ray>
+				<scan>
+					<horizontal>
+					<samples>5</samples>
+					<resolution>1.0</resolution>
+					<min_angle>-0.25</min_angle>
+					<max_angle>0.25</max_angle>
+				</horizontal>
+				</scan>
+				<range>
+					<min>0.02</min>
+					<max>5</max>            
+					<resolution>0.01</resolution>
+				</range>
+			</ray>
+			<plugin name="libgazebo_ros_range" filename="libgazebo_ros_range.so">
+				<gaussianNoise>0.005</gaussianNoise>
+				<topicName>sonar/sonar_2</topicName>
+				<frameName>base_sonar_2</frameName>
+			</plugin>
+		</sensor>  
+   </gazebo>
+
+   <gazebo reference="base_sonar_3">        
+		<sensor type="ray" name="sonar3">
+			<always_on>true</always_on>
+			<update_rate>40</update_rate>
+			<pose>0 0 0 0 0 0</pose>
+			<visualize>true</visualize>
+			<ray>
+				<scan>
+					<horizontal>
+					<samples>5</samples>
+					<resolution>1.0</resolution>
+					<min_angle>-0.25</min_angle>
+					<max_angle>0.25</max_angle>
+				</horizontal>
+				</scan>
+				<range>
+					<min>0.02</min>
+					<max>5</max>            
+					<resolution>0.01</resolution>
+				</range>
+			</ray>
+			<plugin name="libgazebo_ros_range" filename="libgazebo_ros_range.so">
+				<gaussianNoise>0.005</gaussianNoise>
+				<topicName>sonar/sonar_3</topicName>
+				<frameName>base_sonar_3</frameName>
+			</plugin>
+		</sensor>  
+   </gazebo>
+</robot>
