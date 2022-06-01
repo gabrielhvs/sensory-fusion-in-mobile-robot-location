@@ -16,9 +16,13 @@ Implementação dos sensores disponíveis na plataforma modelada no ambiente de 
 
 `Gabriel`
 
+A implementação foi feita por meio do plugin libgazebo_ros_diff_drive.so, que já é utilizado para controle das velocidades de roda do modelo. Para que fosse atribuída medidas simulando medições de um encoder de interrupção real foi alterado o parâmetro OdometrySource. Assim a posição é calculada de acordo com a velocidade desenvolvida por cada uma das rodas.
+
 #### 2.2. IMU
 
 `Gabriel`
+
+O plugin utilizado para aplicação deste sensor foi libgazebo_ros_imu_sensor.so que é um plugin generico para este tipo de sensor. Além disso, nas leituras geradas foram introduzidos ruídos gaussianos para simular os erros encontrados em uma leitura real. Para melhor visualização na plataforma Rviz e posterior filtragem foi adicionado o pacote imu_tools
 
 #### 2.3. LiDAR
 
@@ -35,6 +39,12 @@ Implementação dos sensores disponíveis na plataforma modelada no ambiente de 
 
 ##
 ### 3. Fusão dos Sensores
+
+#### 3.1. Filtro de Kalman Extendido - Odometria e IMU
+
+`Gabriel`
+
+Implementação do pacote robot_pose_ekf, que tem o intuito de aplicar um EKF por meio dos dados da odometria e do IMU gerando uma medida mais aproximada da posição real do modelo. Já que o IMU gera leituras de ângulos e de acelerações, esses dados auxiliam em uma melhor estimação. Já que um dos principais problemas da odometria são devido aos deslizamentos de roda.  
 
 ##
 ### Extra 
