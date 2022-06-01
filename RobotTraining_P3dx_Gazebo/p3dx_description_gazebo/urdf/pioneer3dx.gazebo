@@ -17,43 +17,43 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -->
 <robot>
-	<!-- properties (constants) -->
+	<!-- properties (constants) 
 	<property name="ns" value="p3dx" />
-	<!-- ros_control plugin -->
+	
 	<gazebo>
 		<plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-			<!--<robotNamespace>/${ns}</robotNamespace>-->
+			
 		</plugin>
 	</gazebo>
-	<!-- base_link -->
+	
 	<gazebo reference="base_link">
 		<material>Gazebo/Red</material>
-	</gazebo>
-	<!-- top_plate -->
+	</gazebo>-->
+	<!-- top_plate 
 	<gazebo reference="top_plate">
 		<material>Gazebo/Black</material>
-	</gazebo>
-	<!-- swivel -->
+	</gazebo>-->
+	<!-- swivel 
 	<gazebo reference="swivel">
 		<material>Gazebo/Grey</material>
-	</gazebo>
-	<!-- center_hubcap -->
+	</gazebo>-->
+	<!-- center_hubcap 
 	<gazebo reference="center_hubcap">
 		<material>Gazebo/Grey</material>
-	</gazebo>
-	<!-- center_wheel -->
+	</gazebo>-->
+	<!-- center_wheel 
 	<gazebo reference="center_wheel">
 		<material>Gazebo/Black</material>
 		<mu1>0.0</mu1>
 		<mu2>0.0</mu2>
 		<kp>1000000.0</kp>
 		<kd>1.0</kd>
-	</gazebo>
+	</gazebo>-->
 	<!-- front_sonar -->
 	<gazebo reference="front_sonar">
 		<material value="Gazebo/Yellow" />
 	</gazebo>
-	<!-- differential drive -->
+	<!-- differential drive 
 	<gazebo>
 		<plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
 			<alwaysOn>true</alwaysOn>
@@ -66,6 +66,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			<commandTopic>cmd_vel</commandTopic>
 			<odometryTopic>odom</odometryTopic>
 			<odometryFrame>odom</odometryFrame>
+			<odometrySource>encoder</odometrySource>
+			<publishOdom>true</publishOdom>
 			<robotBaseFrame>base_link</robotBaseFrame>
 			<publishWheelTF>true</publishWheelTF>
 			<publishWheelJointState>true</publishWheelJointState>
@@ -75,21 +77,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			<publishTf>1</publishTf>
 			<legacyMode>false</legacyMode>
 		</plugin>
-	</gazebo>
-	<!-- ground truth -->
+	</gazebo>-->
+	<!--ground truth 
 	<gazebo>
 		<plugin name="p3d_base_controller" filename="libgazebo_ros_p3d.so">
 			<alwaysOn>true</alwaysOn>
 			<updateRate>30.0</updateRate>
 			<bodyName>base_link</bodyName>
 			<topicName>base_pose_ground_truth</topicName>
-			<gaussianNoise>0.01</gaussianNoise>
-			<frameName>map</frameName>
-			<!-- initialize odometry for fake localization -->
+			<gaussianNoise>90</gaussianNoise>
+			<frameName>world</frameName>
+			
 			<xyzOffsets>0 0 0</xyzOffsets>
 			<rpyOffsets>0 0 0</rpyOffsets>
 		</plugin>
-	</gazebo>
+	</gazebo>-->
 	<!-- lms100 -->
 	<gazebo reference="lms100">
 		<sensor type="ray" name="head_hokuyo_sensor">
@@ -125,11 +127,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			</plugin>
 		</sensor>
 	</gazebo>
-	<gazebo reference="base_IMU">        
+	<!-- <gazebo reference="base_IMU">        
 		<gravity>true</gravity>
 		<sensor name="imu_sensor" type="imu">
 			<always_on>true</always_on>
-			<update_rate>100</update_rate>
+			<update_rate>10</update_rate>
 			<visualize>true</visualize>
 			<topic>__default_topic__</topic>
 			<plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
@@ -143,7 +145,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			</plugin>
 			<pose>0 0 0 0 0 0</pose>
 		</sensor>
-	</gazebo>
+	</gazebo>-->
 	<gazebo reference="base_Cam">        
 		<sensor type="depth" name="camera">
 		<update_rate>30.0</update_rate>

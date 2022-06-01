@@ -2,11 +2,11 @@ import scipy
 from numpy import *
 import numpy as np
 import matplotlib.pyplot as plt
-from math import pi
 #!/usr/bin/env python
 import rospy
 import time
-from math import pow, atan2, radians, sqrt, degrees, cos, sin, pi, tanh
+from math import atan2
+from tabulate import tabulate
 #from geometry_msgs.msg  import Twist
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
@@ -39,7 +39,6 @@ class Control_Ararajuba:
         self.pose = self.rospy.Subscriber('/sonar/sonar_2', Range, self.get_sonar_2, queue_size=10)
         self.pose = self.rospy.Subscriber('/sonar/sonar_3', Range, self.get_sonar_3, queue_size=10)
         self.pose = self.rospy.Subscriber('/base_pose_ground_truth', Odometry, self.get_pose, queue_size=10)
-        self.pose = self.rospy.Subscriber('/robot_pose_ekf/odom_combined', PoseWithCovarianceStamped, self.get_FilterPose, queue_size=10)
         self.rate = rospy.Rate(10)
         
     def initPublishers(self):
@@ -72,41 +71,29 @@ class Control_Ararajuba:
         #Posição
         self.x = msg.pose.pose.position.x
         self.y = msg.pose.pose.position.y
+        self.z = msg.pose.pose.position.z
         #Orientação em Quartenos
         Qx = msg.pose.pose.orientation.x
         Qy = msg.pose.pose.orientation.y
         Qz = msg.pose.pose.orientation.z
         Qw = msg.pose.pose.orientation.w
         #Orientação
-        self.theta = atan2(2*(Qw*Qz+Qx*Qy),1-2*(Qy*Qy+Qz*Qz))
+        [self.rollg, self.picthg, self.yawg] = self.euler_from_quaternion(Qx, Qy, Qz, Qw)
     
     def get_odom(self, msg):
 
         #Posição
         self.xo = msg.pose.pose.position.x
         self.yo = msg.pose.pose.position.y
+        self.zo = msg.pose.pose.position.z
         #Orientação em Quartenos
         Qxo = msg.pose.pose.orientation.x
         Qyo = msg.pose.pose.orientation.y
         Qzo = msg.pose.pose.orientation.z
         Qwo = msg.pose.pose.orientation.w
         #Orientação
-        self.thetao = atan2(2*(Qwo*Qzo+Qxo*Qyo),1-2*(Qyo*Qyo+Qzo*Qzo))
-    
-    def get_FilterPose(self, msg):
-
-        #Posição
-        self.xf = msg.pose.pose.position.x
-        self.yf = msg.pose.pose.position.y
-        self.zf = msg.pose.pose.position.z
-        #Orientação em Quartenos
-        self.Qxf = msg.pose.pose.orientation.x
-        self.Qyf = msg.pose.pose.orientation.y
-        self.Qzf = msg.pose.pose.orientation.z
-        self.Qwf = msg.pose.pose.orientation.w
-        #Covariance 
-        # covariance  = msg.pose.pose.covariance   
-
+        [self.rollo, self.pictho, self.yawo] = self.euler_from_quaternion(Qxo, Qyo, Qzo, Qwo)
+      
     def get_imu(self, msg):
 
         #Aceleration
@@ -124,8 +111,7 @@ class Control_Ararajuba:
         self.Qy = msg.orientation.y
         self.Qz = msg.orientation.z
         self.Qw = msg.orientation.w
-        #Orientação
-    
+        
     def get_sonar_1(self, msg):
         #Range
         self.distance_1 = msg.range
@@ -135,53 +121,27 @@ class Control_Ararajuba:
         self.distance_2 = msg.range
     
     def get_sonar_3(self, msg):
-        #Range
+
         self.distance_3 = msg.range
 
     def printData(self):
-        time.sleep(0.5)
-        """
-        print("Acelarações lineares:")
-        print(" x:" + str(self.Acx))
-        print(" y:" + str(self.Acy))
-        print(" z:" + str(self.Acz) + "\n")
         
-        print("Velocidades Angulares:")
-        print(" x:" + str(self.Vax))
-        print(" y:" + str(self.Vay))
-        print(" z:" + str(self.Vaz)+ "\n")
+        time.sleep(0.5)
 
         [self.roll, self.picth, self.yaw] = self.euler_from_quaternion(self.Qx, self.Qy, self.Qz, self.Qw)
-        print("Orientações:")
-        print(" roll:" + str(self.roll))
-        print(" pitch:" + str(self.picth))
-        print(" yaw:" + str(self.yaw))
 
-        print("Posição Estimada (IMU-Odom):")
-        print(" x:" + str(self.xf))
-        print(" y:" + str(self.yf))
-        print(" z:" + str(self.zf)+ "\n")
-
-        [self.rollf, self.picthf, self.yawf] = self.euler_from_quaternion(self.Qxf, self.Qyf, self.Qzf, self.Qwf)
-        print("Orientações Estimada (IMU-Odom):")
-        print(" roll:" + str(self.rollf))
-        print(" pitch:" + str(self.picthf))
-        print(" yaw:" + str(self.yawf))
-        """
+        data = [[1, "roll: "+str(round(self.roll,4)), "x: "+str(round(self.xo,4)), "x: "+str(round(self.x,4)),  "dist-1: "+str(round(self.distance_1,2))],
+                    [2, "pitch: "+str(round(self.picth,4)), "y: "+str(round(self.yo,4)), "y: "+str(round(self.y,4)),  "dist-2: "+str(round(self.distance_2,2))],
+                    [3, "yaw: "+str(round(self.yaw,4)), "z: "+str(round(self.zo,4)), "z: "+str(round(self.z,4)),  "dist-3: "+str(round(self.distance_3,2))],
+                    [4,"Aclx: "+str(round(self.Acx,4)), "roll: "+str(round(self.rollo,4)), "roll: "+str(round(self.rollg,4)), 0],
+                    [5,"Acly: "+str(round(self.Acy,4)), "pitch: "+str(round(self.pictho,4)),  "pitch: "+str(round(self.picthg,4)), 0],
+                    [6,"Aclz: "+str(round(self.Acz,4)), "yaw: "+str(round(self.yawo,4)), "yaw: "+str(round(self.yawg,4)), 0]]
+        print(tabulate(data, headers=["Sensor:", "Imu", "Odom", "GroundTruth","Sonars"]))
         
-        print("Sonar's distance: ")
-        print(" Sonar1:" + str(self.distance_1))
-        print(" Sonar2:" + str(self.distance_2))
-        print(" Sonar3:" + str(self.distance_3))
-        
-
         
 if __name__ == '__main__':
         try:
-            robot = Control_Ararajuba()
             while True:
+                robot = Control_Ararajuba()
                 robot.printData()
-            
         except rospy.ROSInterruptException: pass
-
-

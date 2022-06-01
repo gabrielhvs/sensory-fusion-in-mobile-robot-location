@@ -23,13 +23,52 @@ work original in ucs-ros-pkg.
 	xmlns:xacro="http://ros.org/wiki/xacro">
 	<!-- import all gazebo-customization elements, including gazebo colors -->
 	<xacro:include filename="$(find p3dx_description_gazebo)/urdf/pioneer3dx.gazebo" />
+
 	<!-- import the pioneer 3dx's wheels -->
 	<xacro:include filename="$(find p3dx_description_gazebo)/urdf/pioneer3dx_wheel.xacro" />
-	<!-- chassis -->
+
+	<!-- import imu -->
+	<xacro:include filename="$(find p3dx_description_gazebo)/urdf/sensors/imu/imu.xacro"/>
+	<xacro:include filename="$(find p3dx_description_gazebo)/urdf/sensors/imu/imu.gazebo"/>
+
+	<!-- import ground truth -->
+	<xacro:include filename="$(find p3dx_description_gazebo)/urdf/sensors/groundTruth/groundTruth.gazebo"/>
+
+	<!-- import odometry -->
+	<xacro:include filename="$(find p3dx_description_gazebo)/urdf/sensors/odometry/odometry.gazebo"/>
+
+	<!-- import chassis -->
+	<xacro:include filename="$(find p3dx_description_gazebo)/urdf/parts/chassi/chassi.xacro"/>
+	<xacro:include filename="$(find p3dx_description_gazebo)/urdf/parts/chassi/chassi.gazebo"/>
+
+	<!-- import swivel -->
+	<xacro:include filename="$(find p3dx_description_gazebo)/urdf/parts/swivel/swivel.xacro"/>
+	<xacro:include filename="$(find p3dx_description_gazebo)/urdf/parts/swivel/swivel.gazebo"/>
+
+	<!-- import top_plate -->
+	<xacro:include filename="$(find p3dx_description_gazebo)/urdf/parts/top_plate/top_plate.xacro"/>
+	<xacro:include filename="$(find p3dx_description_gazebo)/urdf/parts/top_plate/top_plate.gazebo"/>
+
+	<!-- import center_hubcap -->
+	<xacro:include filename="$(find p3dx_description_gazebo)/urdf/parts/center_hubcap/center_hubcap.xacro"/>
+	<xacro:include filename="$(find p3dx_description_gazebo)/urdf/parts/center_hubcap/center_hubcap.gazebo"/>
+
+	<!-- import center_wheel -->
+	<xacro:include filename="$(find p3dx_description_gazebo)/urdf/parts/center_wheel/center_wheel.xacro"/>
+	<xacro:include filename="$(find p3dx_description_gazebo)/urdf/parts/center_wheel/center_wheel.gazebo"/>
+
+	<xacro:p3dx_wheel suffix="left" parent="base_link" reflect="-1"/>
+	<xacro:p3dx_wheel suffix="right" parent="base_link" reflect="1"/>
+
+	<!-- import front_sonar -->
+	<xacro:include filename="$(find p3dx_description_gazebo)/urdf/parts/front_sonar/front_sonar.xacro"/>
+	<xacro:include filename="$(find p3dx_description_gazebo)/urdf/parts/front_sonar/front_sonar.gazebo"/>
+
+	<!-- chassis 
 	<link name="base_link">
 		<inertial>
 			<mass value="3.5" />
-			<!--<origin xyz="-0.025 0 -0.223"/> -->
+			
 			<origin xyz="-0.05 0 0" />
 			<inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
 		</inertial>
@@ -48,8 +87,8 @@ work original in ucs-ros-pkg.
 				<box size="0.35 0.25 0.14" />
 			</geometry>
 		</collision>
-	</link>
-	<!-- top_plate -->
+	</link>-->
+	<!-- top_plate 
 	<link name="top_plate">
 		<inertial>
 			<mass value="0.01" />
@@ -76,8 +115,8 @@ work original in ucs-ros-pkg.
 		<origin xyz="-0.045 0 0.234" rpy="0 0 0" />
 		<parent link="base_link" />
 		<child link="top_plate" />
-	</joint>
-	<!-- swivel -->
+	</joint>-->
+	<!-- swivel 
 	<link name="swivel">
 		<inertial>
 			<mass value="0.1" />
@@ -108,8 +147,8 @@ work original in ucs-ros-pkg.
 		<joint_properties damping="0.0" friction="0.0" />
 		<parent link="base_link" />
 		<child link="swivel" />
-	</joint>
-	<!-- center_hubcap -->
+	</joint>-->
+	<!-- center_hubcap
 	<link name="center_hubcap">
 		<inertial>
 			<mass value="0.01" />
@@ -140,8 +179,8 @@ work original in ucs-ros-pkg.
 		<joint_properties damping="0.0" friction="0.0" />
 		<parent link="swivel" />
 		<child link="center_wheel" />
-	</joint>
-	<!-- center_wheel -->
+	</joint> -->
+	<!-- center_wheel 
 	<link name="center_wheel">
 		<inertial>
 			<mass value="1.0" />
@@ -168,16 +207,15 @@ work original in ucs-ros-pkg.
 		<origin xyz="-0.0035 0 -0.001" rpy="0 0 0"/>
 		<parent link="center_wheel"/>
 		<child link="center_hubcap"/>
-	</joint>
+	</joint>-->
 	<!-- End of Legacy for diff drive plugin
 	https://github.com/ros-simulation/gazebo_ros_pkgs/pull/707/files
 	"This setting assumes you have a old package, where the right and left wheel are changed to fix a former code issue\n"
 	"To get rid of this error just set <legacyMode> to false if you just created a new package.\n"
 	"To fix an old package you have to exchange left wheel by the right wheel.\n"
 	-->
-	<xacro:p3dx_wheel suffix="left" parent="base_link" reflect="-1"/>
-	<xacro:p3dx_wheel suffix="right" parent="base_link" reflect="1"/>
-	<!-- front_sonar -->
+	
+	<!-- front_sonar 
 	<link name="front_sonar">
 		<inertial>
 			<mass value="0.0001" />
@@ -204,7 +242,7 @@ work original in ucs-ros-pkg.
 		<origin rpy="0 0 0" xyz="0.109 0 0.209" />
 		<parent link="base_link" />
 		<child link="front_sonar" />
-	</joint>
+	</joint>-->
 	<!-- lms100 laser -->
 	<link name="lms100">
 		<inertial>
@@ -231,7 +269,7 @@ work original in ucs-ros-pkg.
 		<parent link="base_link" />
 		<child link="lms100" />
 	</joint>
-	<!-- IMU -->
+	<!-- IMU 
 	<link name="base_IMU">
 		<collision>
 			<origin xyz="0 0 0" rpy="0 0 0"/>
@@ -256,7 +294,7 @@ work original in ucs-ros-pkg.
 		<origin rpy="0 0 0" xyz="0 0 0.09" />
 		<parent link="base_link"/>
 		<child link="base_IMU"/>
-	</joint>
+	</joint>-->
 	<link name="base_Cam">
 		<collision>
 			<origin xyz="0 0 0" rpy="0 0 0"/>
