@@ -92,6 +92,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			<rpyOffsets>0 0 0</rpyOffsets>
 		</plugin>
 	</gazebo>-->
+
 	<!-- lms100 -->
 	<gazebo reference="lms100">
 		<sensor type="ray" name="head_hokuyo_sensor">
@@ -145,7 +146,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			</plugin>
 			<pose>0 0 0 0 0 0</pose>
 		</sensor>
-	</gazebo>-->
+	</gazebo>
 	<gazebo reference="base_Cam">        
 		<sensor type="depth" name="camera">
 		<update_rate>30.0</update_rate>
@@ -270,5 +271,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				<frameName>base_sonar_3</frameName>
 			</plugin>
 		</sensor>  
-   </gazebo>
+   </gazebo> -->
 </robot>
