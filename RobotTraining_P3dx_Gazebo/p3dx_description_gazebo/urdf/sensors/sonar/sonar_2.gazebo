@@ -12,8 +12,8 @@
 					<horizontal>
 					<samples>5</samples>
 					<resolution>1.0</resolution>
-					<min_angle>-0.25</min_angle>
-					<max_angle>0.25</max_angle>
+					<min_angle>-0.225</min_angle>
+					<max_angle>0.225</max_angle>
 				</horizontal>
 				</scan>
 				<range>
@@ -24,8 +24,10 @@
 			</ray>
 			<plugin name="libgazebo_ros_range" filename="libgazebo_ros_range.so">
 				<gaussianNoise>0.005</gaussianNoise>
-				<topicName>sonar/sonar_2</topicName>
+				<topicName>sensor/sonar/data2</topicName>
 				<frameName>base_sonar_2</frameName>
+				<radiation>ultrasound</radiation>
+				<fov>0.1</fov>
 			</plugin>
 		</sensor>  
    </gazebo>
