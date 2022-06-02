@@ -37,6 +37,8 @@ O plugin utilizado para aplicação deste sensor foi libgazebo_ros_imu_sensor.so
 
 `Marina`
 
+Implementação do modelo Microsoft Kinect utilizando o plugin  libgazebo_ros_openni_kinect.so no gazebo. Este modelo de sensor gera uma nuvem de pontos com informação de posição 3D associada a cada ponto. Além disso, por meio do RVIZ é possível vizualizar as imagens de profundidade e RGB.
+No ROS, o modelo disponibiliza 2 tópicos principais para obter informações do sensor em 2D e 3D.
 ##
 ### 3. Fusão dos Sensores
 
@@ -45,6 +47,12 @@ O plugin utilizado para aplicação deste sensor foi libgazebo_ros_imu_sensor.so
 `Gabriel`
 
 Implementação do pacote robot_pose_ekf, que tem o intuito de aplicar um EKF por meio dos dados da odometria e do IMU gerando uma medida mais aproximada da posição real do modelo. Já que o IMU gera leituras de ângulos e de acelerações, esses dados auxiliam em uma melhor estimação. Já que um dos principais problemas da odometria são devido aos deslizamentos de roda.  
+
+#### 3.2.Deteccão de objetos por cor - Câmera RGB (test_camera.py)
+
+`Marina`
+
+Código em python que utiliza openCV e o pacote ROS CV_Bridge para detectar objetos de cor amarela e publica a localização (x,y) deste. O código está sendo construido para posteriormente ser utilizado na identificação de marcadores no mapa e retornar dados que informem a posição do robô em relação ao marcador detectado. 
 
 ##
 ### Extra 
