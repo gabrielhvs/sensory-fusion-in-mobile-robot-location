@@ -108,6 +108,10 @@ class Control_Ararajuba:
         Y=c[:,1] 
         plt.plot(X,Y,'r-')  
     
+    def TrajRobot(self,x,w):
+        self.vel_msg.linear.x = x
+        self.vel_msg.angular.z = w
+        self.velocity_publisher.publish(self.vel_msg)
         
 if __name__ == '__main__':
         try:
@@ -116,14 +120,16 @@ if __name__ == '__main__':
             PoseO=[]
             PoseGT=[]
             i=0
+            
             while i<200:
                 time.sleep(0.1)
+                robot.TrajRobot(1.0,0.25)
                 PoseGT.append([robot.x,robot.y,robot.theta])
                 PoseO.append([robot.xo,robot.yo,robot.thetao])
                 PoseF.append([robot.xf,robot.yf,robot.thetaf])
                 i=i+1
                 print("Iterações: "+ str(i))
-            
+            robot.TrajRobot(0,0)
             PoseGT = np.array(PoseGT)
             PoseO = np.array(PoseO)
             PoseF = np.array(PoseF)
@@ -137,9 +143,9 @@ if __name__ == '__main__':
             plt.legend()
                       
             for i in range(0,len(PoseGT[:,0]),round(len(PoseGT[:,0])/20)):
-                robot.drawRobot(PoseGT[i,0],PoseGT[i,1],PoseGT[i,2],0.02)
-                robot.drawRobot(PoseO[i,0],PoseO[i,1],PoseO[i,2],0.02)
-                robot.drawRobot(PoseF[i,0],PoseF[i,1],PoseF[i,2],0.02)
+                robot.drawRobot(PoseGT[i,0],PoseGT[i,1],PoseGT[i,2],0.08)
+                robot.drawRobot(PoseO[i,0],PoseO[i,1],PoseO[i,2],0.08)
+                robot.drawRobot(PoseF[i,0],PoseF[i,1],PoseF[i,2],0.08)
 
             plt.show()
         except rospy.ROSInterruptException: pass
