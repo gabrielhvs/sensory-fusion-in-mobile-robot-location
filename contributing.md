@@ -79,3 +79,10 @@ angulares no tópico \cmd_vel.
 
 Para uma melhor organização do projeto realizou-se uma modularização dos arquivos para melhor manipulação dos sensores e plataforma, em virtude do robô utilizado atualmente não ser a plataforma Ararajuba.
 
+#### Implementação - SensorTag - CC2650
+
+`Gabriel`
+
+Implementação do Sensor Tag da Texas Instruments por meio da conexão bluetooth low energy (BLE) já fornecida por ela, e assim fazendo da biblioteca bluespy foi possível ter acesso aos dados brutos de cada sensor. Por fim foi feita conversão de hexa para unidades de medidas decimais. Como a priori o uso do Sensor Tag seria apenas do Imu, foram publicadas apenas essas leituras em um tópico com mensagem do tipo Imu.
+
+
