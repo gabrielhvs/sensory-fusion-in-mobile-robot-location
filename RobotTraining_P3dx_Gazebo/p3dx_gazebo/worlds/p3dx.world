@@ -9,5 +9,9 @@
     <include>
       <uri>model://ground_plane</uri>
     </include>
+
+    <include>
+      <uri>/home/breno/building_editor_models/chale</uri>
+    </include>
   </world>
 </sdf>
