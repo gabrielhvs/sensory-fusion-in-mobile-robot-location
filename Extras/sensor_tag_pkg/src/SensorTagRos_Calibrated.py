@@ -5,6 +5,9 @@ from math import  atan2, sqrt, sin, cos
 from bluepy.btle import UUID, Peripheral, DefaultDelegate, AssignedNumbers
 import struct
 import time
+import csv
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def _TI_UUID(val):
@@ -165,6 +168,26 @@ class SensorTag_Ros:
         self.sensor_data = Imu()
         self.rate = rospy.Rate(10)
 
+def get_orientation(acc, gyo, mag, cal_offsets):
+
+        acc[0] = cal_offsets[0][0]*acc[0] - cal_offsets[0][1]
+        acc[1] = cal_offsets[1][0]*acc[1] - cal_offsets[1][1]
+        acc[2] = cal_offsets[2][0]*acc[2] - cal_offsets[2][1]
+
+        gyo[0] = gyo[0] - cal_offsets[3]
+        gyo[1] = gyo[1] - cal_offsets[4]
+        gyo[2] = gyo[2] - cal_offsets[5]
+
+        mag[0] = mag[0] - cal_offsets[6]
+        mag[1] = mag[1] - cal_offsets[7]
+        mag[2] = mag[2] - cal_offsets[8]
+
+
+        roll = 180*atan2 (acc[0],acc[2])/pi
+        pitch = 180*atan2 (acc[1],acc[2])/pi
+        yaw= 180*atan2(mag[1], mag[0])/pi
+
+        return acc, gyo, [roll, pitch, yaw]
 
 def main():
 
@@ -189,15 +212,31 @@ def main():
     # Iniciando 
     time.sleep(0.5)# Esse tempo é especificado pelo o fabricante para iniciar os sensores
 
-    mag = tag.magnetometer.read()
-    print(mag)
-    time.sleep(0.5)
-    tag.magnetometer.read()
     
+    cal_filename = '/home/robottraining03/Ararajuba/src/Extras/sensor_tag_pkg/src/params/mpu9250_cal_params.csv' # filename for saving calib coeffs
+    cal_offsets = np.array([[],[],[],0.0,0.0,0.0,[],[],[]]) # cal vector
+
+    
+    # Get dos coeficientes calculados na etapa de Calibração
+    with open(cal_filename,'r',newline='') as csvfile:
+        reader = csv.reader(csvfile,delimiter=',')
+        iter_ii = 0
+        for row in reader:
+            if len(row)>2:
+                row_vals = [float(ii) for ii in row[int((len(row)/2)+1):]]
+                cal_offsets[iter_ii] = row_vals
+            else:
+                cal_offsets[iter_ii] = float(row[1])
+            iter_ii+=1
+            
+
     while not rospy.is_shutdown():
         # Get dos dados dos sensores 
-        acc = tag.accelerometer.read()
-        gyo = tag.gyroscope.read()
+        acc = list(tag.accelerometer.read())
+        gyo = list(tag.gyroscope.read())
+        mag = list(tag.magnetometer.read())
+
+        [acc, gyo, orientation]=get_orientation(acc, gyo, mag, cal_offsets)
 
         # Envio dos dados adquiridos para o ROS 
         imu.sensor_data.angular_velocity.x=gyo[0]
@@ -206,16 +245,14 @@ def main():
         imu.sensor_data.linear_acceleration.x = acc[0]
         imu.sensor_data.linear_acceleration.y = acc[1]
         imu.sensor_data.linear_acceleration.z = acc[2]
-        imu.sensor_data.orientation.x = 180*atan2 (acc[0],sqrt(acc[1]*acc[1] + acc[2]*acc[2]))/pi
-        imu.sensor_data.orientation.y = 180*atan2 (acc[1],sqrt(acc[0]*acc[0] + acc[2]*acc[2]))/pi
-        imu.sensor_data.orientation.z = 180*atan2(mag[1], mag[0])/pi 
+
+        imu.sensor_data.orientation.x = orientation[0]
+        imu.sensor_data.orientation.y = orientation[1]
+        imu.sensor_data.orientation.z = orientation[2]
         imu.sensor.publish(imu.sensor_data)
-       
 
         # Espera pela a proxima amostra
         tag.waitForNotifications(time_conetion)
-
-
     #Desconexão da tag, deixando  acesso livre
     tag.disconnect()
     del tag
