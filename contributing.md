@@ -85,4 +85,12 @@ Para uma melhor organização do projeto realizou-se uma modularização dos arq
 
 Implementação do Sensor Tag da Texas Instruments por meio da conexão bluetooth low energy (BLE) já fornecida por ela, e assim fazendo da biblioteca bluespy foi possível ter acesso aos dados brutos de cada sensor. Por fim foi feita conversão de hexa para unidades de medidas decimais. Como a priori o uso do Sensor Tag seria apenas do Imu, foram publicadas apenas essas leituras em um tópico com mensagem do tipo Imu.
 
+#### Calibração - Acelerômetro, Giroscópio e Magnetômetro
+
+`Gabriel`
+
+Calibração de cada um dos sensores de forma isolada. O acelerômetro, foi realizada medições com o sensor em direção de cada um dos eixos coordenados, e uma compensação foi aplicada, para que os dados de aproximassem da magnitude de um 1G. Já o giroscópio, foi realizada algumas medições com o sensor estável, e novamente foi aplicada uma compensação a fim de se obter valores nulos com o sensor parado. Finalmente, para o magnetômetro foram realizados giros em torno dos vários eixos coordenados, e até o momento aplicado apenas a compensação de Hard-Iron.
+
+
+
 
