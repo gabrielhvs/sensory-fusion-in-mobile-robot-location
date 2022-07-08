@@ -1,6 +1,6 @@
 from cmath import pi
 import rospy
-from sensor_msgs.msg import Imu
+from sensor_msgs.msg import Imu, MagneticField
 from math import  atan2, asin
 from bluepy.btle import UUID, Peripheral, DefaultDelegate, AssignedNumbers
 import struct
@@ -9,7 +9,6 @@ import csv
 import matplotlib.pyplot as plt
 import numpy as np
 from ahrs.filters import Madgwick
-
 
 def _TI_UUID(val):
     return UUID("%08X-0451-4000-b000-000000000000" % (0xF0000000+val))
@@ -160,13 +159,16 @@ class SensorTag_Ros:
     
     def __init__(self):
         self.rospy=rospy
+        #self.rospy.init_node('SensorTag', anonymous=True)
         self.rospy.init_node('SensorTag', anonymous=True)
         self.initPublishers()
         self.rate = rospy.Rate(10)
         
     def initPublishers(self):
-        self.sensor = rospy.Publisher('Sensor_Tag', Imu, queue_size=10)
-        self.sensor_data = Imu()
+        self.sensorImu = rospy.Publisher('imu/data_raw', Imu, queue_size=10)
+        self.sensorMag = rospy.Publisher('imu/mag', MagneticField, queue_size=10)
+        self.sensor_data_Imu = Imu()
+        self.sensor_data_Magnetic = MagneticField()
         self.rate = rospy.Rate(10)
 
 def euler_from_quaternion(x, y, z, w):
@@ -186,34 +188,55 @@ def euler_from_quaternion(x, y, z, w):
      
         return roll_x, pitch_y, yaw_z 
 
-def get_orientation(acc, gyo, mag, cal_offsets):
+def get_quaternion_from_euler(roll, pitch, yaw):
+  qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+  qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
+  qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
+  qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+ 
+  return [qx, qy, qz, qw]
 
-        acc[0] = ((cal_offsets[0][0]*acc[0] - cal_offsets[0][1]))
-        acc[1] = ((cal_offsets[1][0]*acc[1] - cal_offsets[1][1]))
-        acc[2] = ((cal_offsets[2][0]*acc[2] - cal_offsets[2][1]))
+def get_orientation(orientationE, acc, gyo, mag, cal_offsets):
 
-        gyo[0] = (gyo[0] - cal_offsets[3])
-        gyo[1] = gyo[1] - cal_offsets[4]
-        gyo[2] = gyo[2] - cal_offsets[5]
+        acc[0] = ((cal_offsets[0][0]*acc[0] - cal_offsets[0][1]))*9.81
+        acc[1] = ((cal_offsets[1][0]*acc[1] - cal_offsets[1][1]))*9.81
+        acc[2] = ((cal_offsets[2][0]*acc[2] - cal_offsets[2][1]))*9.81
+        
+        gyo[0] = (gyo[0] - cal_offsets[3])*(pi/180)
+        gyo[1] = (gyo[1] - cal_offsets[4])*(pi/180)
+        gyo[2] = (gyo[2] - cal_offsets[5])*(pi/180)
 
-        mag[0] = mag[0] - cal_offsets[6]
-        mag[1] = mag[1] - cal_offsets[7]
-        mag[2] = mag[2] - cal_offsets[8]
+        mag[0] = (mag[0] - cal_offsets[6])
+        mag[1] = (mag[1] - cal_offsets[7])
+        mag[2] = (mag[2] - cal_offsets[8])
 
         acc = np.array(acc)
         mag = np.array(mag)
         gyo = np.array(gyo)
 
-        #madgwick = Madgwick() # Allocate for quaternions
-        #Q = madgwick.updateMARG(Q, gyr=gyo, acc=acc, mag=mag)
-        #[roll, pitch, yaw] = euler_from_quaternion(Q[1],Q[2],Q[3],Q[0])
+        deltapitch = gyo[0]* 0.1
+        deltaroll = gyo[1] * 0.1
+        deltayaw = gyo[2] * 0.1
+        
+        if(abs(deltapitch)>0.001 ):
+            orientationE[1] = orientationE[1] + deltapitch
+
+        if(abs(deltaroll)>0.001 ):
+            orientationE[0] = orientationE[0] + deltaroll
+            
+
+        if(abs(deltayaw)>0.001 ):
+            orientationE[2] = orientationE[2] + deltayaw
+
         
 
-        roll = 180*atan2 (acc[0],acc[2])/pi
-        pitch = 180*atan2 (acc[1],acc[2])/pi
-        yaw= 180*atan2(mag[1], mag[0])/pi
+        roll = atan2 (acc[0],acc[2])
+        pitch = atan2 (acc[1],acc[2])
+        yaw= atan2(mag[1], mag[0])
+        #orientationsQ = get_quaternion_from_euler(orientationE[0],orientationE[1],orientationE[2])
+        orientationsQ = get_quaternion_from_euler(roll,pitch,yaw)
         #print(mag)
-        return acc, gyo, [roll, pitch, yaw]
+        return acc, gyo, mag, orientationsQ,orientationE
 
 def main():
 
@@ -256,28 +279,46 @@ def main():
             iter_ii+=1
       
     #Q= np.array([0, 0, 0, 0])
-    #Q = np.tile([1., 0., 0., 0.],1)
+    Q = np.tile([1., 0., 0., 0.],1)
+    dt = 0
+    t=0
+    orientationE = np.array([0.,0.,0.])
     while not rospy.is_shutdown():
         # Get dos dados dos sensores 
         acc = list(tag.accelerometer.read())
         gyo = list(tag.gyroscope.read())
         mag = list(tag.magnetometer.read())
+        #print(mag)
         
+        [acc, gyo, mag, orientationQ, orientationE]=get_orientation(orientationE, acc, gyo, mag, cal_offsets)
+        #Q = Qe
         
-        [acc, gyo, orientation]=get_orientation(acc, gyo, mag, cal_offsets)
-        print(orientation[2])
+        now = rospy.get_rostime()
         # Envio dos dados adquiridos para o ROS 
-        imu.sensor_data.angular_velocity.x=gyo[0]
-        imu.sensor_data.angular_velocity.y=gyo[1]
-        imu.sensor_data.angular_velocity.z=gyo[2]
-        imu.sensor_data.linear_acceleration.x = acc[0]
-        imu.sensor_data.linear_acceleration.y = acc[1]
-        imu.sensor_data.linear_acceleration.z = acc[2]
+        imu.sensor_data_Imu.angular_velocity.x=gyo[0]
+        imu.sensor_data_Imu.angular_velocity.y=gyo[1]
+        imu.sensor_data_Imu.angular_velocity.z=gyo[2]
+        imu.sensor_data_Imu.orientation.x = orientationQ[0]
+        imu.sensor_data_Imu.orientation.y = orientationQ[1]
+        imu.sensor_data_Imu.orientation.z = orientationQ[2]
+        imu.sensor_data_Imu.orientation.w = orientationQ[3]
+        imu.sensor_data_Imu.linear_acceleration.x = acc[0]
+        imu.sensor_data_Imu.linear_acceleration.y = acc[1]
+        imu.sensor_data_Imu.linear_acceleration.z = acc[2]
+        imu.sensor_data_Magnetic.magnetic_field.x = mag[0]
+        imu.sensor_data_Magnetic.magnetic_field.y = mag[1]
+        imu.sensor_data_Magnetic.magnetic_field.z = mag[2]
+        imu.sensor_data_Magnetic.header.frame_id = 'imu_mag'
+        imu.sensor_data_Imu.header.frame_id = 'imu_imu'
+        #print(rospy.get_time())
+        imu.sensor_data_Imu.header.stamp.secs = now.secs
+        imu.sensor_data_Imu.header.stamp.nsecs = now.nsecs
+        imu.sensor_data_Magnetic.header.stamp.secs = now.secs
+        imu.sensor_data_Magnetic.header.stamp.nsecs = now.nsecs
+        
+        imu.sensorImu.publish(imu.sensor_data_Imu)
+        imu.sensorMag.publish(imu.sensor_data_Magnetic)
 
-        imu.sensor_data.orientation.x = orientation[0]
-        imu.sensor_data.orientation.y = orientation[1]
-        imu.sensor_data.orientation.z = orientation[2]
-        imu.sensor.publish(imu.sensor_data)
 
         # Espera pela a proxima amostra
         tag.waitForNotifications(time_conetion)
@@ -289,6 +330,7 @@ def main():
 if __name__ == "__main__":
 
     try:
+             
              main()
     except rospy.ROSInterruptException:
             pass

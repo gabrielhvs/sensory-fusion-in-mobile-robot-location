@@ -161,6 +161,7 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
    src/SensorTagRos.py
+   src/SensorTagRos_Calibrated_Ori.py
    launch/SensorTag.launch
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
