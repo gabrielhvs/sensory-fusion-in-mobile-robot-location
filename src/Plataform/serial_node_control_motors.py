@@ -13,7 +13,7 @@ class Control_Ararajuba:
     
     def __init__(self):
 
-        self.serialArduino = serial.Serial(port='/dev/ttyUSB1',baudrate=115200)
+        self.serialArduino = serial.Serial(port='/dev/ttyUSB0',baudrate=115200)
 
         self.rospy=rospy
         self.rospy.init_node('serial_node', anonymous=True)
@@ -106,14 +106,18 @@ class Control_Ararajuba:
 
     def msg_serial(self):
         self.msg_csv = str(self.rpm_scan) + '\n'
-        #print("MSG: ",self.msg_csv)
+        print("MSG: ",self.msg_csv)
         self.serialArduino.write(self.msg_csv.encode())
     
     def read_msg_serial(self):
-        data = self.serialArduino.read(2)
+        data = self.serialArduino.read(4)
         #byte = int.from_bytes(data,byteorder='big')
-        self.rpm_wheel_left = int(data[0])
-        self.rpm_wheel_right = int(data[1])
+        self.rpm_wheel_left =  int(data[0]) if int(data[2])==0 else int(data[0])*(-1)
+        self.rpm_wheel_right = int(data[1]) if int(data[3])==0 else int(data[1])*(-1)
+
+        #self.dt_left = int((data[2]))*100+int(data[3])
+        #self.dt_right = int((data[4]<<2))+int(data[5])
+        #print(self.rpm_wheel_left)
 
 
         
