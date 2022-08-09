@@ -40,6 +40,9 @@ class Control_Ararajuba:
 
         self.rpm_scan = 0
 
+        self.start_recive = False
+        self.index = 0
+
 
     def initInstances(self):
         self.scan_msg = LaserScan()
@@ -71,8 +74,8 @@ class Control_Ararajuba:
         self.v = msg.linear.x
         self.w = msg.angular.z
         
-        self.set_rpm_wheel_right = int((self.L/self.R)*( (self.v/2)+self.w))
-        self.set_rpm_wheel_left = int((self.L/self.R)*( (self.v/2)-self.w))
+        self.set_rpm_wheel_right = int((1/self.R)*( self.v + (self.w*self.L)))
+        self.set_rpm_wheel_left = int((1/self.R)*( self.v - (self.w*self.L)))
         
         if(self.set_rpm_wheel_right < 30 and self.set_rpm_wheel_right > -30):
             self.set_rpm_wheel_right = 0
@@ -110,10 +113,27 @@ class Control_Ararajuba:
         self.serialArduino.write(self.msg_csv.encode())
     
     def read_msg_serial(self):
-        data = self.serialArduino.read(4)
-        #byte = int.from_bytes(data,byteorder='big')
-        self.rpm_wheel_left =  int(data[0]) if int(data[2])==0 else int(data[0])*(-1)
-        self.rpm_wheel_right = int(data[1]) if int(data[3])==0 else int(data[1])*(-1)
+        data = self.serialArduino.read()
+        byte = int.from_bytes(data,byteorder='big')
+        #print(byte)
+        if(byte == 253):
+            self.start_recive = True
+        else:
+            if(self.start_recive):
+                self.index+=1
+                if self.index == 1:
+                    self.rpm_wheel_left  = byte
+                elif self.index == 2:
+                    self.rpm_wheel_right = byte
+                elif self.index == 3:
+                    if(not byte):
+                        self.rpm_wheel_left = self.rpm_wheel_left * -1
+                elif self.index == 4:
+                    if(not byte):
+                        self.rpm_wheel_right = self.rpm_wheel_right * -1
+                    self.start_recive = False
+                    print("Pacote: ", self.rpm_wheel_left, self.rpm_wheel_right)
+                    self.index = 0
 
         #self.dt_left = int((data[2]))*100+int(data[3])
         #self.dt_right = int((data[4]<<2))+int(data[5])

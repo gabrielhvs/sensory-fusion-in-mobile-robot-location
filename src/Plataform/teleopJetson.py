@@ -9,8 +9,8 @@ def main(win):
     velocity_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
     vel_msg = Twist()
 
-    speed = 50 # 0.5
-    speed_angular = 1 # 0.4
+    speed = 2# 0.5
+    speed_angular = 5 # 0.4
     vel_msg.linear.x = 0
     vel_msg.linear.y = 0
     vel_msg.linear.z = 0
@@ -34,15 +34,22 @@ def main(win):
                else:
                 vel_msg.linear.x = vel_msg.linear.x + speed
            elif ("KEY_DOWN" == str(key)):
-               if(vel_msg.linear.x <= -250):
-                vel_msg.linear.x = -250
+               if(vel_msg.linear.x <= 0):
+                vel_msg.linear.x = 0
                else:
                 vel_msg.linear.x = vel_msg.linear.x - speed
            
            if ("KEY_RIGHT" == str(key)):
-               vel_msg.angular.z = vel_msg.angular.z - speed_angular
+                if(vel_msg.angular.z >= 250):
+                    vel_msg.angular.z = 250
+                else:
+                    vel_msg.angular.z = vel_msg.angular.z + speed_angular
+               
            elif ("KEY_LEFT" == str(key)):
-               vel_msg.angular.z = vel_msg.angular.z + speed_angular
+                if(vel_msg.angular.z <= -250):
+                    vel_msg.angular.z = -250
+                else:
+                    vel_msg.angular.z = vel_msg.angular.z - speed_angular
            
            if ("KEY_BACKSPACE" == str(key)):
                vel_msg.linear.x = 0
