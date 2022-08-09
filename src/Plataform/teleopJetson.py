@@ -34,8 +34,8 @@ def main(win):
                else:
                 vel_msg.linear.x = vel_msg.linear.x + speed
            elif ("KEY_DOWN" == str(key)):
-               if(vel_msg.linear.x <= 0):
-                vel_msg.linear.x = 0
+               if(vel_msg.linear.x <= -250):
+                vel_msg.linear.x = -250
                else:
                 vel_msg.linear.x = vel_msg.linear.x - speed
            

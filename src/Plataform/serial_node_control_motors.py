@@ -35,6 +35,8 @@ class Control_Ararajuba:
         self.set_rpm_wheel_left = 0
         self.set_rpm_wheel_right = 0
 
+        self.rpm_wheel_left_ = 0
+        self.rpm_wheel_right_ = 0
         self.rpm_wheel_left = 0
         self.rpm_wheel_right = 0
 
@@ -87,7 +89,7 @@ class Control_Ararajuba:
         
         self.msg_csv = self.set_rpm_wheel_left + "," + self.set_rpm_wheel_right
         
-        print("MSG: ",self.msg_csv)
+        #print("MSG: ",self.msg_csv)
         self.serialArduino.write(self.msg_csv.encode())
 
     def convert_format_cmd_vel(self,set_rpm):
@@ -122,18 +124,21 @@ class Control_Ararajuba:
             if(self.start_recive):
                 self.index+=1
                 if self.index == 1:
-                    self.rpm_wheel_left  = byte
+                    self.rpm_wheel_left_  = byte
                 elif self.index == 2:
-                    self.rpm_wheel_right = byte
+                    self.rpm_wheel_right_ = byte
                 elif self.index == 3:
-                    if(not byte):
-                        self.rpm_wheel_left = self.rpm_wheel_left * -1
+                    if(byte == 255):
+                        self.rpm_wheel_left_ = self.rpm_wheel_left_ * -1
+                    self.rpm_wheel_left  = self.rpm_wheel_left_
                 elif self.index == 4:
-                    if(not byte):
-                        self.rpm_wheel_right = self.rpm_wheel_right * -1
+                    if(byte == 255):
+                        self.rpm_wheel_right_ = self.rpm_wheel_right_ * -1
+                    self.rpm_wheel_right = self.rpm_wheel_right_
                     self.start_recive = False
-                    print("Pacote: ", self.rpm_wheel_left, self.rpm_wheel_right)
                     self.index = 0
+
+        #print("Pacote: ", self.rpm_wheel_left, self.rpm_wheel_right)
 
         #self.dt_left = int((data[2]))*100+int(data[3])
         #self.dt_right = int((data[4]<<2))+int(data[5])
