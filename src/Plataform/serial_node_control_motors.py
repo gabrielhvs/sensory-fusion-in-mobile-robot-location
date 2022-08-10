@@ -37,8 +37,8 @@ class Control_Ararajuba:
 
         self.rpm_wheel_left_ = 0
         self.rpm_wheel_right_ = 0
-        self.rpm_wheel_left = 0
-        self.rpm_wheel_right = 0
+        self.rpm_wheel_left = Int16()
+        self.rpm_wheel_right = Int16()
 
         self.rpm_scan = 0
 
@@ -64,8 +64,8 @@ class Control_Ararajuba:
         self.rate = rospy.Rate(10)
 
     def write_wheel(self):
-        self.rpm_wheel_left_publisher.publish(int(self.rpm_wheel_left)) 
-        self.rpm_wheel_right_publisher.publish(int(self.rpm_wheel_right)) 
+        self.rpm_wheel_left_publisher.publish(self.rpm_wheel_left)
+        self.rpm_wheel_right_publisher.publish(self.rpm_wheel_right)
 
     def set_rpm_scan(self,msg):
         self.rpm_scan = msg.data
@@ -130,11 +130,11 @@ class Control_Ararajuba:
                 elif self.index == 3:
                     if(byte == 255):
                         self.rpm_wheel_left_ = self.rpm_wheel_left_ * -1
-                    self.rpm_wheel_left  = self.rpm_wheel_left_
+                    self.rpm_wheel_left.data  = self.rpm_wheel_left_
                 elif self.index == 4:
                     if(byte == 255):
                         self.rpm_wheel_right_ = self.rpm_wheel_right_ * -1
-                    self.rpm_wheel_right = self.rpm_wheel_right_
+                    self.rpm_wheel_right.data = self.rpm_wheel_right_
                     self.start_recive = False
                     self.index = 0
 
