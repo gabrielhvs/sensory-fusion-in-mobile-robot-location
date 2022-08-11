@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 from operator import index
 import serial
@@ -13,7 +14,7 @@ class Control_Ararajuba:
     
     def __init__(self):
 
-        self.serialArduino = serial.Serial(port='/dev/ttyUSB0',baudrate=115200)
+        self.serialArduino = serial.Serial(port='/dev/ttyUSB1',baudrate=115200)
 
         self.rospy=rospy
         self.rospy.init_node('serial_node', anonymous=True)
@@ -66,6 +67,7 @@ class Control_Ararajuba:
     def write_wheel(self):
         self.rpm_wheel_left_publisher.publish(self.rpm_wheel_left)
         self.rpm_wheel_right_publisher.publish(self.rpm_wheel_right)
+        self.rate = rospy.Rate(10)
 
     def set_rpm_scan(self,msg):
         self.rpm_scan = msg.data
@@ -137,12 +139,8 @@ class Control_Ararajuba:
                     self.rpm_wheel_right.data = self.rpm_wheel_right_
                     self.start_recive = False
                     self.index = 0
-
-        #print("Pacote: ", self.rpm_wheel_left, self.rpm_wheel_right)
-
-        #self.dt_left = int((data[2]))*100+int(data[3])
-        #self.dt_right = int((data[4]<<2))+int(data[5])
-        #print(self.rpm_wheel_left)
+                    #print(self.rospy.get_rostime().secs%1000)
+                    self.write_wheel()
 
 
         
@@ -150,13 +148,6 @@ if __name__ == '__main__':
         try:
             robot = Control_Ararajuba()
             while not rospy.is_shutdown():
-
-                #print(robot.msg_csv)
                 robot.read_msg_serial()
-                #print(robot.v)
-                #robot.read_rpm_wheel()
-                #robot.read_serial()
-                robot.write_wheel()
-                #print(robot.rpm_wheel_left, ",", robot.rpm_wheel_right)
-                #rospy.spin()
+                #robot.write_wheel()
         except rospy.ROSInterruptException: pass

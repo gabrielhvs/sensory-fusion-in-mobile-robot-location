@@ -55,6 +55,7 @@ class Calc_Odom:
         self.distanceR = self.velRight*self.dt
         return self.distanceR
 
+
     def get_distL(self):
         self.distanceL = self.velLeft*self.dt
         return self.distanceL
