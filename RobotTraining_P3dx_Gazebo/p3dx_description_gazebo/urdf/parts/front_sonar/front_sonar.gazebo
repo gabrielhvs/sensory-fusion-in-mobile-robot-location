@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<robot>
-    <gazebo reference="front_sonar">
-		<material value="Gazebo/Yellow" />
-	</gazebo>
-</robot>
