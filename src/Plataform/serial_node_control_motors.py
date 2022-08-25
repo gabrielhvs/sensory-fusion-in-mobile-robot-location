@@ -9,6 +9,7 @@ from geometry_msgs.msg  import Twist
 from sensor_msgs.msg import Range
 from sensor_msgs.msg import LaserScan
 import numpy as np
+from math import pi,cos, sin
 
 class Control_Ararajuba:
     
@@ -78,8 +79,10 @@ class Control_Ararajuba:
         self.v = msg.linear.x
         self.w = msg.angular.z
         
-        self.set_rpm_wheel_right = int((1/self.R)*( self.v + (self.w*self.L)))
-        self.set_rpm_wheel_left = int((1/self.R)*( self.v - (self.w*self.L)))
+        #self.set_rpm_wheel_right = int((1/self.R)*( self.v + (self.w*self.L)))
+        #self.set_rpm_wheel_left = int((1/self.R)*( self.v - (self.w*self.L)))
+        self.set_rpm_wheel_right = int((1/self.R)*(60/(2*pi))*( self.v + (self.w*self.L)))
+        self.set_rpm_wheel_left = int((1/self.R)*(60/(2*pi))*( self.v - (self.w*self.L)))
         
         if(self.set_rpm_wheel_right < 30 and self.set_rpm_wheel_right > -30):
             self.set_rpm_wheel_right = 0

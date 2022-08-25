@@ -1,5 +1,4 @@
 from cmath import pi
-import scipy
 from numpy import *
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,10 +11,7 @@ from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu
 from sensor_msgs.msg import Range
 from geometry_msgs.msg import PoseWithCovarianceStamped 
-import pdb 
-
-
-
+import csv
 
 class Control_Ararajuba:
     
@@ -34,7 +30,7 @@ class Control_Ararajuba:
     
     def initSubscribers(self):
         self.pose = self.rospy.Subscriber('imu/data_raw', Imu, self.get_Imu, queue_size=10)
-        self.pose = self.rospy.Subscriber('imu/data', Imu, self.get_Imu_filter, queue_size=10)
+        self.pose = self.rospy.Subscriber('/odom', Odometry, self.get_odom, queue_size=10)
         self.rate = rospy.Rate(10)
         
     def initPublishers(self):
@@ -44,19 +40,6 @@ class Control_Ararajuba:
     def initvariables(self):
         self.R = 0.095
         self.L = 0.331
-        
-    def get_pose(self, msg):
-
-        #Posição
-        self.x = msg.pose.pose.position.x
-        self.y = msg.pose.pose.position.y
-        #Orientação em Quartenos
-        Qx = msg.pose.pose.orientation.x
-        Qy = msg.pose.pose.orientation.y
-        Qz = msg.pose.pose.orientation.z
-        Qw = msg.pose.pose.orientation.w
-        #Orientação
-        self.theta = atan2(2*(Qw*Qz+Qx*Qy),1-2*(Qy*Qy+Qz*Qz))
     
     def get_odom(self, msg):
 
@@ -79,15 +62,6 @@ class Control_Ararajuba:
         self.Qzi = msg.orientation.z
         self.Qwi = msg.orientation.w
         self.thetai = atan2(2*(self.Qwi*self.Qzi+self.Qxi*self.Qyi),1-2*(self.Qyi*self.Qyi+self.Qzi*self.Qzi))
-
-    def get_Imu_filter(self, msg):
-
-        #Orientação em Quartenos
-        Qxf = msg.orientation.x
-        Qyf = msg.orientation.y
-        Qzf = msg.orientation.z
-        Qwf = msg.orientation.w
-        self.thetaf = atan2(2*(Qwf*Qzf+Qxf*Qyf),1-2*(Qyf*Qyf+Qzf*Qzf))
 
     def drawRobot(self,x,y,q,s):
         p=[ [1,              1/7],  
@@ -123,32 +97,28 @@ if __name__ == '__main__':
             time.sleep(0.5)
             #pdb.set_trace()
 
-            Orientation=[]
-            thetaFO = 0
-            thetaIO = 0
             i=0
-            
-            
-            while i<1000:
-                time.sleep(0.1)
-                Orientation.append([180*robot.thetaf/pi,180*robot.thetai/pi])
-                i=i+1
-                print(str(180*robot.thetaf/pi)+'|'+str(180*robot.thetai/pi))
-                #print(180*robot.thetai/pi)
-            Orientation = np.array(Orientation)
-            Orientation[:,0]= Orientation[:,0] #- (sum(Orientation[:,0]) / float(len(Orientation[:,0])))
-            Orientation[:,1]= Orientation[:,1] #- (sum(Orientation[:,1]) / float(len(Orientation[:,1])))
-            #plt.plot(PoseO[:,0],PoseO[:,1], label = "Odometria")
-            plt.plot(Orientation[:,0],label = "Orientation from Filter")
-            plt.plot(Orientation[:,1],label = "Orientation from IMU")
-            plt.xlabel('Samples')
-            plt.ylabel('Orientation')
-            plt.title('Orientation Filter X Imu')
-            plt.legend()
-                      
-            #for i in range(0,len(Orientation[:,0]),round(len(Orientation[:,0])/4)):
-            #    robot.drawRobot(0,0,Orientation[:,0],0.02)
-            #    robot.drawRobot(0,0,Orientation[:,1],0.02)
+            v = 3*(2*pi)/60
+            w = 2*(2*pi)/60
+            a = input("Press Enter")
 
-            plt.show()
+            file = open('test.csv', 'w')
+            writer = csv.writer(file)
+
+            while i<1000:
+                robot.vel_msg.linear.x = v
+                robot.vel_msg.angular.z = w
+                robot.velocity_publisher.publish(robot.vel_msg)
+                time.sleep(0.1)
+                writer.writerow([robot.rospy.get_rostime().secs,robot.rospy.get_rostime().nsecs,robot.xo, robot.yo, robot.thetao, robot.thetai])
+                i=i+1
+                time.sleep(0.1)
+                print(i)
+                
+            print("here!")
+            robot.vel_msg.linear.x = 0
+            robot.vel_msg.angular.z = 0
+            robot.velocity_publisher.publish(robot.vel_msg)
+            file.close()
+
         except rospy.ROSInterruptException: pass
