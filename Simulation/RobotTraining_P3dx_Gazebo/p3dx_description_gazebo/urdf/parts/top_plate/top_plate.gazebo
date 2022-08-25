@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<robot>
+  <gazebo reference="top_plate">
+		<material>Gazebo/Black</material>
+	</gazebo>
+</robot>

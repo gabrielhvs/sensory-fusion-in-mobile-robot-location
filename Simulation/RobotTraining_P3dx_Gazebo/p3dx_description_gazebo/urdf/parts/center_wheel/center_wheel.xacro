@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+   
+   <link name="center_wheel">
+		<inertial>
+			<mass value="1.0" />
+			<origin xyz="0 0 0" />
+			<inertia ixx="0.012411765597" ixy="-0.000711733678" ixz="0.00050272983" iyy="0.015218160428" iyz="-0.000004273467" izz="0.011763977943" />
+		</inertial>
+		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<geometry name="pioneer_geom">
+				<mesh filename="package://p3dx_description_gazebo/meshes/center_wheel.stl" />
+			</geometry>
+			<material name="WheelBlack">
+				<color rgba="0.117 0.117 0.117 1" />
+			</material>
+		</visual>
+		<collision>
+			<origin xyz="0 0 0" rpy="${-3.1415927/2.0} 0 0" />
+			<geometry>
+				<cylinder radius="0.0375" length="0.01" />
+			</geometry>
+		</collision>
+	</link>
+	<joint name="center_wheel_joint" type="fixed">
+		<origin xyz="-0.0035 0 -0.001" rpy="0 0 0"/>
+		<parent link="center_wheel"/>
+		<child link="center_hubcap"/>
+	</joint>
+</robot>
+
+

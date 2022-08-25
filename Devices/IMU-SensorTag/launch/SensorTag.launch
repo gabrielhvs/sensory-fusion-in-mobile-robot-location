@@ -1,0 +1,4 @@
+<launch>
+	  <node name="SensorTag_node" pkg="sensor_tag_pkg" type="SensorTagRos.py"></node>
+
+</launch>

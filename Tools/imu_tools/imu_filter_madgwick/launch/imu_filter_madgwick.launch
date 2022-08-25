@@ -1,0 +1,30 @@
+<!-- Node for merging magnetometer and accelerometer data into a single imu message -->
+<launch>
+
+  <!-- <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
+  </node>-->
+  #### Nodelet manager ######################################################
+  
+  <node pkg="nodelet" type="nodelet" name="imu_manager"
+    args="manager" output="screen" />
+
+  #### IMU Driver ###########################################################
+
+  <node pkg="nodelet" type="nodelet" name="ImuFilterNodelet"
+    args="load imu_filter_madgwick/ImuFilterNodelet imu_manager"
+    output="screen">
+    <param name="publish_tf" value="true"/> 
+    <param name="use_magnetic_field_msg" value="true"/>
+    <param name="gain" value="0.01"/>
+
+  
+  </node>
+
+
+  <node name="SensorTagRos_Calibrated_Ori" pkg="sensor_tag_pkg" type="SensorTagRos_Calibrated_Ori.py" output="screen" />
+
+    	<!-- RVIZ-->
+  	<include file="$(find p3dx_description_gazebo)/launch/rviz.launch">
+   	 	<arg name="rviz_node_args" value="-d $(find imu_filter_madgwick)/imu_test.rviz"/>
+  	</include> 
+</launch>

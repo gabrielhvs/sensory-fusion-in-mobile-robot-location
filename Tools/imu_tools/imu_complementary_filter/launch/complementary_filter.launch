@@ -1,0 +1,43 @@
+<!-- ComplementaryFilter launch file -->
+<launch>
+
+    <node pkg="tf" type="static_transform_publisher" name="fake_odom_map" args="0 0 0 0 0 0 map odom 100" />
+    <node pkg="tf" type="static_transform_publisher" name="imu_mount_pose" args="10 15 0 0 0 0 imu base_link 100" />
+    <node pkg="tf" type="static_transform_publisher" name="imu_pose" args="0 0 0 0 0 0  base_link box 100" />
+  #### Nodelet manager ######################################################
+
+  <node pkg="nodelet" type="nodelet" name="imu_manager"
+    args="manager" output="screen" />
+
+  #### IMU Driver ###########################################################
+
+  <node pkg="nodelet" type="nodelet" name="PhidgetsImuNodelet"
+    args="load phidgets_imu/PhidgetsImuNodelet imu_manager"
+    output="screen">
+
+    # supported data rates: 4 8 16 24 32 40 ... 1000 (in ms)
+    <param name="period" value="4"/>
+
+  </node>
+
+  #### Complementary filter
+
+  <node pkg="imu_complementary_filter" type="complementary_filter_node"
+      name="complementary_filter_gain_node" output="screen">
+    <param name="do_bias_estimation" value="true"/>
+    <param name="do_adaptive_gain" value="true"/>
+    <param name="use_mag" value="true"/>
+    <param name="gain_acc" value="0.05"/>
+    <param name="gain_mag" value="0.05"/>
+    <param name="publish_tf" value="true" />
+  </node>
+
+  
+
+  <node name="SensorTagRos_Calibrated_Ori" pkg="sensor_tag_pkg" type="SensorTagRos_Calibrated_Ori.py" output="screen" />
+
+    	<!-- RVIZ-->
+  	<include file="$(find p3dx_description_gazebo)/launch/rviz.launch">
+   	 	<arg name="rviz_node_args" value="-d $(find imu_complementary_filter)/imu_test.rviz"/>
+  	</include> 
+</launch>

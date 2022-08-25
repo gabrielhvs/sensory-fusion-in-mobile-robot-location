@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <!-- Include empty world -->
+    <arg name="ns" default="p3dx"/>
+    <arg name="x" default="0.0" />
+    <arg name="y" default="0.0" />
+    <arg name="z" default="0.0" />
+
+    <!-- Spawn robot-->
+    <group ns="$(arg ns)">
+        <param name="tf_prefix" value="$(arg ns)_tf" />
+        <include file="$(find p3dx_gazebo)/launch/spawn.launch">
+            <arg name="name" value="$(arg ns)" />
+            <arg name="x" value="$(arg x)" />
+            <arg name="y" value="$(arg y)" />
+            <arg name="z" value="$(arg z)" />
+            <arg name="namespace_arg" value="$(arg ns)" />
+        </include>
+    </group>
+</launch>
