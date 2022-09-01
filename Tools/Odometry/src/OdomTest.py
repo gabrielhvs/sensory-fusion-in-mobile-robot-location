@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from ahrs.filters import Madgwick
 
-arquivo = open('/home/robottraining03/Ararajuba/src/Extras/IMU-SensorTag/src/params/Odom2000.csv')
+arquivo = open('src/Ararajuba/Tools/Odometry/src/Odom2000.csv')
 
 linhas = csv.reader(arquivo)
 
@@ -89,5 +89,6 @@ plt.plot(X[:],Y[:])
 plt.suptitle('Odometry-Pose')
 plt.xlabel('Distance X - (m)')
 plt.ylabel('Distance Y - (m)')
+
 
 plt.show()

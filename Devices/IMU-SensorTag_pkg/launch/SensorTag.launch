@@ -1,0 +1,8 @@
+<launch>
+	  <node name="Imu" pkg="IMU-SensorTag_pkg" type="SensorTagRos_Calibrated_Ori.py"></node>
+	    	<!-- RVIZ-->
+
+	  <arg name="rviz_node_args" value="-d $(find IMU-SensorTag_pkg)/imu_rviz.rviz"/>
+	  <node name="rviz" pkg="rviz" type="rviz" args="$(arg rviz_node_args)" />
+	  
+</launch>

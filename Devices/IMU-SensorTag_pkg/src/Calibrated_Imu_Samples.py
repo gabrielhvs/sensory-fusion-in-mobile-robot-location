@@ -7,7 +7,34 @@ from ellipse import LsqEllipse
 from matplotlib.patches import Ellipse
 from ahrs.filters import Madgwick
 
-arquivo = open('/home/robottraining03/Ararajuba/src/Extras/sensor_tag_pkg/src/params/ImuData.csv')
+'''
+arquivo = open('src/Ararajuba/Devices/IMU-SensorTag_pkg/src/params/Sample5.csv')
+
+linhas = csv.reader(arquivo)
+linhas =list(linhas)
+
+DataC = []
+Data = []
+
+for linha in linhas:
+
+    Data=[]
+    for i in linha:
+        Data.append(float(i))
+    DataC.append(Data)
+
+print(DataC)
+
+MagX = [DataC[i][0] for i in range(len(DataC))]
+MagY = [DataC[i][1] for i in range(len(DataC))]
+MagZ = [DataC[i][2] for i in range(len(DataC))]
+
+print(MagX)
+
+'''
+
+
+arquivo = open('src/Ararajuba/Devices/IMU-SensorTag/src/params/ImuData.csv')
 
 linhas = csv.reader(arquivo)
 
