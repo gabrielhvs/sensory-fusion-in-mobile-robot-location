@@ -29,7 +29,7 @@ De forma geral, o projeto visa a aplicação dos conhecimentos adquiridos dentro
 - [Motor Encoders Óptico](https://github.com/gabrielhvs/sensory-fusion-in-mobile-robot-location/tree/master/Devices/Engines)
 - [SensorTag 2 CC2650 (IMU)](https://github.com/gabrielhvs/sensory-fusion-in-mobile-robot-location/tree/master/Devices/IMU-SensorTag_pkg)
 - [Neato XV-11 LiDAR](https://github.com/gabrielhvs/sensory-fusion-in-mobile-robot-location/tree/master/Devices/Lidar/xv_11_laser_driver)
-- [Câmera RGB-D - Realsense D435](https://github.com/gabrielhvs/sensory-fusion-in-mobile-robot-location/tree/master/Devices/RealSense)
+- [Câmera RGB-D - Realsense D415](https://github.com/gabrielhvs/sensory-fusion-in-mobile-robot-location/tree/master/Devices/RealSense)
 
 ## Outros Materiais
 - Jetson Nano 4 GB
