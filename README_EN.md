@@ -6,7 +6,7 @@
 
 <p align="center">
   <span>English</span> |
-  <a href="README_PT.md">Portugues</a>
+  <a href="README.md">Portugues</a>
 </p>
 
 ## Description
